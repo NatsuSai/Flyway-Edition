@@ -15,6 +15,11 @@
  */
 package org.flywaydb.core.internal.database;
 
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.SQLException;
+import java.util.Optional;
+import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.logging.Log;
@@ -37,10 +42,6 @@ import org.flywaydb.core.internal.database.sybasease.SybaseASEDatabase;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.jdbc.DatabaseType;
 import org.flywaydb.core.internal.jdbc.JdbcUtils;
-
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.SQLException;
 
 /**
  * Factory for obtaining the correct Database instance for the current connection.
@@ -112,101 +113,46 @@ public class DatabaseFactory {
         }
     }
 
-    private static Database createDatabase(DatabaseType databaseType, Configuration configuration,
-                                           Connection connection, boolean originalAutoCommit
+    private static Database createDatabase(DatabaseType databaseType, Configuration configuration, Connection connection,
+                                           boolean originalAutoCommit) {
+        return Optional.ofNullable(Flyway.DATABASE_MAPPING.get(databaseType))
+                       .map(f -> f.apply(configuration, connection, originalAutoCommit))
+                       .orElseGet(() -> {
+                           switch (databaseType) {
+                               case COCKROACHDB:
+                                   return new CockroachDBDatabase(configuration, connection, originalAutoCommit);
+                               case DB2:
+                                   return new DB2Database(configuration, connection, originalAutoCommit);
+                               case DERBY:
+                                   return new DerbyDatabase(configuration, connection, originalAutoCommit);
+                               case H2:
+                                   return new H2Database(configuration, connection, originalAutoCommit);
+                               case HSQLDB:
+                                   return new HSQLDBDatabase(configuration, connection, originalAutoCommit);
+                               case INFORMIX:
+                                   return new InformixDatabase(configuration, connection, originalAutoCommit);
+                               case MYSQL:
+                                   return new MySQLDatabase(configuration, connection, originalAutoCommit);
+                               case ORACLE:
+                                   return new OracleDatabase(configuration, connection, originalAutoCommit);
+                               case POSTGRESQL:
+                                   return new PostgreSQLDatabase(configuration, connection, originalAutoCommit);
+                               case REDSHIFT:
+                                   return new RedshiftDatabase(configuration, connection, originalAutoCommit);
+                               case SQLITE:
+                                   return new SQLiteDatabase(configuration, connection, originalAutoCommit);
+                               case SAPHANA:
+                                   return new SAPHANADatabase(configuration, connection, originalAutoCommit);
+                               case SQLSERVER:
+                                   return new SQLServerDatabase(configuration, connection, originalAutoCommit);
+                               case SYBASEASE_JCONNECT:
+                               case SYBASEASE_JTDS:
+                                   return new SybaseASEDatabase(configuration, connection, originalAutoCommit);
+                               default:
+                                   throw new FlywayException("Unsupported Database: " + databaseType.name());
+                           }
+                       });
 
-
-
-    ) {
-        switch (databaseType) {
-            case COCKROACHDB:
-                return new CockroachDBDatabase(configuration, connection, originalAutoCommit
-
-
-
-                );
-            case DB2:
-                return new DB2Database(configuration, connection, originalAutoCommit
-
-
-
-                );
-            case DERBY:
-                return new DerbyDatabase(configuration, connection, originalAutoCommit
-
-
-
-                );
-            case H2:
-                return new H2Database(configuration, connection, originalAutoCommit
-
-
-
-                );
-            case HSQLDB:
-                return new HSQLDBDatabase(configuration, connection, originalAutoCommit
-
-
-
-                );
-            case INFORMIX:
-                return new InformixDatabase(configuration, connection, originalAutoCommit
-
-
-
-                );
-            case MYSQL:
-                return new MySQLDatabase(configuration, connection, originalAutoCommit
-
-
-
-                );
-            case ORACLE:
-                return new OracleDatabase(configuration, connection, originalAutoCommit
-
-
-
-                );
-            case POSTGRESQL:
-                return new PostgreSQLDatabase(configuration, connection, originalAutoCommit
-
-
-
-                );
-            case REDSHIFT:
-                return new RedshiftDatabase(configuration, connection, originalAutoCommit
-
-
-
-                );
-            case SQLITE:
-                return new SQLiteDatabase(configuration, connection, originalAutoCommit
-
-
-
-                );
-            case SAPHANA:
-                return new SAPHANADatabase(configuration, connection, originalAutoCommit
-
-
-
-                );
-            case SQLSERVER:
-                return new SQLServerDatabase(configuration, connection, originalAutoCommit
-
-
-
-                );
-            case SYBASEASE_JCONNECT:
-            case SYBASEASE_JTDS:
-                return new SybaseASEDatabase(configuration, connection, originalAutoCommit
-
-
-
-                );
-            default:
-                throw new FlywayException("Unsupported Database: " + databaseType.name());
-        }
     }
 
     /**

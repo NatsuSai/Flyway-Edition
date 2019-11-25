@@ -15,6 +15,11 @@
  */
 package org.flywaydb.core;
 
+import java.io.File;
+import java.io.OutputStream;
+import java.nio.charset.Charset;
+import java.util.*;
+import javax.sql.DataSource;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.MigrationInfoService;
@@ -32,22 +37,16 @@ import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
 import org.flywaydb.core.internal.callback.DefaultCallbackExecutor;
 import org.flywaydb.core.internal.callback.LegacyCallback;
-import org.flywaydb.core.internal.callback.NoopCallback;
-import org.flywaydb.core.internal.callback.NoopCallbackExecutor;
 import org.flywaydb.core.internal.callback.SqlScriptCallbackFactory;
 import org.flywaydb.core.internal.clazz.ClassProvider;
 import org.flywaydb.core.internal.clazz.NoopClassProvider;
-import org.flywaydb.core.internal.command.DbBaseline;
-import org.flywaydb.core.internal.command.DbClean;
-import org.flywaydb.core.internal.command.DbInfo;
-import org.flywaydb.core.internal.command.DbMigrate;
-import org.flywaydb.core.internal.command.DbRepair;
-import org.flywaydb.core.internal.command.DbSchemas;
-import org.flywaydb.core.internal.command.DbValidate;
+import org.flywaydb.core.internal.command.*;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.database.DatabaseFactory;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Schema;
+import org.flywaydb.core.internal.database.shardingsphere.ShardingSphereDatabase;
+import org.flywaydb.core.internal.jdbc.DatabaseType;
 import org.flywaydb.core.internal.license.VersionPrinter;
 import org.flywaydb.core.internal.resolver.CompositeMigrationResolver;
 import org.flywaydb.core.internal.resource.NoopResourceProvider;
@@ -57,17 +56,6 @@ import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.schemahistory.SchemaHistoryFactory;
 import org.flywaydb.core.internal.sqlscript.SqlStatementBuilderFactory;
 import org.flywaydb.core.internal.util.StringUtils;
-
-import javax.sql.DataSource;
-import java.io.File;
-import java.io.OutputStream;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
 
 /**
  * This is the centre point of Flyway, and for most users, the only class they will ever have to deal with.
@@ -83,6 +71,13 @@ import java.util.Properties;
  * Deprecation warning: starting with Flyway 6.0 this class will no longer implement the Configuration interface.
  */
 public class Flyway implements Configuration {
+
+    public static final Map<DatabaseType, DatabaseFunction<Database>> DATABASE_MAPPING = new HashMap<>();
+
+    static {
+        DATABASE_MAPPING.put(DatabaseType.MYSQL, ShardingSphereDatabase::new);
+    }
+
     private static final Log LOG = LogFactory.getLog(Flyway.class);
 
     private final ClassicConfiguration configuration;
@@ -1854,5 +1849,10 @@ public class Flyway implements Configuration {
 
 
         );
+    }
+
+    @FunctionalInterface
+    public interface DatabaseFunction<R> {
+        R apply(Configuration configuration, java.sql.Connection connection, boolean originalAutoCommit);
     }
 }
