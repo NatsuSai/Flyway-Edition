@@ -15,11 +15,6 @@
  */
 package org.flywaydb.core;
 
-import java.io.File;
-import java.io.OutputStream;
-import java.nio.charset.Charset;
-import java.util.*;
-import javax.sql.DataSource;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.MigrationInfoService;
@@ -45,7 +40,6 @@ import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.database.DatabaseFactory;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Schema;
-import org.flywaydb.core.internal.database.shardingsphere.ShardingSphereDatabase;
 import org.flywaydb.core.internal.jdbc.DatabaseType;
 import org.flywaydb.core.internal.license.VersionPrinter;
 import org.flywaydb.core.internal.resolver.CompositeMigrationResolver;
@@ -56,6 +50,12 @@ import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.schemahistory.SchemaHistoryFactory;
 import org.flywaydb.core.internal.sqlscript.SqlStatementBuilderFactory;
 import org.flywaydb.core.internal.util.StringUtils;
+
+import javax.sql.DataSource;
+import java.io.File;
+import java.io.OutputStream;
+import java.nio.charset.Charset;
+import java.util.*;
 
 /**
  * This is the centre point of Flyway, and for most users, the only class they will ever have to deal with.
@@ -73,10 +73,6 @@ import org.flywaydb.core.internal.util.StringUtils;
 public class Flyway implements Configuration {
 
     public static final Map<DatabaseType, DatabaseFunction<Database>> DATABASE_MAPPING = new HashMap<>();
-
-    static {
-        DATABASE_MAPPING.put(DatabaseType.MYSQL, ShardingSphereDatabase::new);
-    }
 
     private static final Log LOG = LogFactory.getLog(Flyway.class);
 
