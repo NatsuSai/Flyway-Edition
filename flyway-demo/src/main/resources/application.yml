@@ -1,0 +1,44 @@
+#
+# Copyright 2010-2018 Boxfuse GmbH
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#         http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+server:
+  port: 8080
+spring:
+  flyway:
+    enabled: true
+    enable-custom-config: true
+  application:
+    name: flyway-demo
+  profiles:
+    active: dev
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://192.168.8.252:13307/myfavs_test?characterEncoding=utf8&useServerPrepStmts=true&userServer&rewriteBatchedStatements=true&useSSL=false
+    username: root
+    password: 9527
+    dbcp2:
+      min-idle: 5
+      initial-size: 5
+      max-total: 5
+      max-wait-millis: 150
+
+
+
+
+
+
+
+
