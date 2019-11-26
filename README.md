@@ -1,23 +1,13 @@
-# [Flyway](https://flywaydb.org) by [Boxfuse](https://boxfuse.com) [![Build Status](https://api.travis-ci.org/flyway/flyway.svg)](https://travis-ci.org/flyway/flyway) [![Maven Central](https://img.shields.io/maven-central/v/org.flywaydb/flyway-core.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.flywaydb.flyway-core%22) [![GitHub license](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg?style=flat)](http://www.apache.org/licenses/LICENSE-2.0)
+# Flyway Edition
+为了能够自定义处理不同的数据库，我做了如下修改：
 
-### Database Migrations Made Easy.
+[Flyway](./flyway-core/src/main/java/org/flywaydb/core/Flyway.java)中增加`DATABASE_MAPPING`用于储存自定义数据库类型的处理方式，
 
-![Flyway](https://flywaydb.org/assets/logo/flyway-logo-tm.png "Flyway")
+他会在[DatabaseFactory#createDatabase](./flyway-core/src/main/java/org/flywaydb/core/internal/database/DatabaseFactory.java)方法中执行原来的逻辑之前先判断
 
-#### Evolve your database schema easily and reliably across all your instances.
-Simple, focused and powerful.
+有没有匹配到，匹配到则返回自定义的Database类实例，否则执行原来的逻辑，
 
-#### Works on
-Windows, macOS, Linux, Docker, Java and Android
-
-#### Supported build tools
-Maven and Gradle
-
-#### Supported databases
-Oracle, SQL Server, DB2, MySQL, Aurora MySQL, MariaDB, Percona XtraDB Cluster, PostgreSQL, Aurora PostgreSQL, Redshift, CockroachDB, SAP HANA, Sybase ASE, Informix, H2, HSQLDB, Derby, SQLite
-
-#### Third party plugins
-SBT, Ant, Spring Boot, Grails, Play!, DropWizard, Grunt, Griffon, Ninja, ...
+使用详情请参考Demo模块。
 
 ## Documentation
 https://flywaydb.org
