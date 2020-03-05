@@ -1,4 +1,4 @@
-# Flyway Edition
+# Flyway Custom Edition
 为了能够自定义处理不同的数据库，我做了如下修改：
 
 [Flyway](./flyway-core/src/main/java/org/flywaydb/core/Flyway.java)中增加`DATABASE_MAPPING`用于储存自定义数据库类型的处理方式，
